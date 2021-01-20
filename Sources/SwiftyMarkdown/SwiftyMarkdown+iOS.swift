@@ -121,10 +121,18 @@ extension SwiftyMarkdown {
 
 			if existentFontName.hasPrefix(".SFUI") {
 				let fontMetrics = UIFontMetrics(forTextStyle: textStyle)
-				font = fontMetrics.scaledFont(for: UIFont.systemFont(ofSize: finalSize))
+                if ignoresDynamicSize {
+                    font = UIFont.systemFont(ofSize: finalSize)
+                } else {
+                    font = fontMetrics.scaledFont(for: UIFont.systemFont(ofSize: finalSize))
+                }
 			} else if let customFont = UIFont(name: existentFontName, size: finalSize)  {
 				let fontMetrics = UIFontMetrics(forTextStyle: textStyle)
-				font = fontMetrics.scaledFont(for: customFont)
+                if ignoresDynamicSize {
+                    font = customFont
+                } else {
+                    font = fontMetrics.scaledFont(for: customFont)
+                }
 			} else {
 				font = UIFont.preferredFont(forTextStyle: textStyle)
 			}

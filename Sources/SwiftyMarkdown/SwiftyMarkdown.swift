@@ -62,9 +62,6 @@ enum MarkdownLineStyle : LineStyling {
     case unorderedList
 	case unorderedListIndentFirstOrder
 	case unorderedListIndentSecondOrder
-    case orderedList
-	case orderedListIndentFirstOrder
-	case orderedListIndentSecondOrder
 	case referencedLink
 	
     func styleIfFoundStyleAffectsPreviousLine() -> LineStyling? {
@@ -164,9 +161,6 @@ If that is not set, then the system default will be used.
 		LineRule(token: "- ",type : MarkdownLineStyle.unorderedList, removeFrom: .leading),
 		LineRule(token: "\t\t* ", type: MarkdownLineStyle.unorderedListIndentSecondOrder, removeFrom: .leading, shouldTrim: false),
 		LineRule(token: "\t* ", type: MarkdownLineStyle.unorderedListIndentFirstOrder, removeFrom: .leading, shouldTrim: false),
-		LineRule(token: "\t\t1. ", type: MarkdownLineStyle.orderedListIndentSecondOrder, removeFrom: .leading, shouldTrim: false),
-		LineRule(token: "\t1. ", type: MarkdownLineStyle.orderedListIndentFirstOrder, removeFrom: .leading, shouldTrim: false),
-		LineRule(token: "1. ",type : MarkdownLineStyle.orderedList, removeFrom: .leading),
 		LineRule(token: "* ",type : MarkdownLineStyle.unorderedList, removeFrom: .leading),
 		LineRule(token: "    ", type: MarkdownLineStyle.codeblock, removeFrom: .leading, shouldTrim: false),
 		LineRule(token: "\t", type: MarkdownLineStyle.codeblock, removeFrom: .leading, shouldTrim: false),
@@ -261,10 +255,6 @@ If that is not set, then the system default will be used.
 	
 	var string : String
 
-	var orderedListCount = 0
-	var orderedListIndentFirstOrderCount = 0
-	var orderedListIndentSecondOrderCount = 0
-	
 	var previouslyFoundTokens : [Token] = []
 	
 	var applyAttachments = true
@@ -456,31 +446,7 @@ extension SwiftyMarkdown {
 			preconditionFailure("The passed line style is not a valid Markdown Line Style")
 		}
 		
-		var listItem = self.bullet
-		switch markdownLineStyle {
-		case .orderedList:
-			self.orderedListCount += 1
-			self.orderedListIndentFirstOrderCount = 0
-			self.orderedListIndentSecondOrderCount = 0
-			listItem = "\(self.orderedListCount)."
-		case .orderedListIndentFirstOrder, .unorderedListIndentFirstOrder:
-			self.orderedListIndentFirstOrderCount += 1
-			self.orderedListIndentSecondOrderCount = 0
-			if markdownLineStyle == .orderedListIndentFirstOrder {
-				listItem = "\(self.orderedListIndentFirstOrderCount)."
-			}
-			
-		case .orderedListIndentSecondOrder, .unorderedListIndentSecondOrder:
-			self.orderedListIndentSecondOrderCount += 1
-			if markdownLineStyle == .orderedListIndentSecondOrder {
-				listItem = "\(self.orderedListIndentSecondOrderCount)."
-			}
-			
-		default:
-			self.orderedListCount = 0
-			self.orderedListIndentFirstOrderCount = 0
-			self.orderedListIndentSecondOrderCount = 0
-		}
+        let listItem = self.bullet
 
 		let lineProperties : LineProperties
 		switch markdownLineStyle {
@@ -507,16 +473,16 @@ extension SwiftyMarkdown {
 			paragraphStyle.firstLineHeadIndent = 20.0
 			paragraphStyle.headIndent = 20.0
 			attributes[.paragraphStyle] = paragraphStyle
-		case .unorderedList, .unorderedListIndentFirstOrder, .unorderedListIndentSecondOrder, .orderedList, .orderedListIndentFirstOrder, .orderedListIndentSecondOrder:
+		case .unorderedList, .unorderedListIndentFirstOrder, .unorderedListIndentSecondOrder:
 			
 			let interval : CGFloat = 30
 			var addition = interval
 			var indent = ""
 			switch line.lineStyle as! MarkdownLineStyle {
-			case .unorderedListIndentFirstOrder, .orderedListIndentFirstOrder:
+			case .unorderedListIndentFirstOrder:
 				addition = interval * 2
 				indent = "\t"
-			case .unorderedListIndentSecondOrder, .orderedListIndentSecondOrder:
+			case .unorderedListIndentSecondOrder:
 				addition = interval * 3
 				indent = "\t\t"
 			default:
